@@ -7,7 +7,7 @@ services:
     env_file: ./env_params/.env.postgres.prod
 
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - ./postgres_data:/var/lib/postgresql
 
     networks:
       - serhio-payday-network
