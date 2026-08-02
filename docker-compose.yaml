@@ -1,0 +1,117 @@
+services:
+  postgres:
+    container_name: serhio-payday-postgres
+    image: postgres:18.4
+    restart: unless-stopped
+
+    env_file: ./env_params/.env.postgres.prod
+
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+    networks:
+      - serhio-payday-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  centrifugo:
+    container_name: serhio-payday-centrifugo
+    image: centrifugo/centrifugo:v6.9
+    restart: unless-stopped
+
+    volumes:
+      - ./centrifugo/config.prod.json:/centrifugo/config.json
+
+    command: centrifugo -c config.json
+
+    ports:
+      - "10001:8000"
+
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+
+    networks:
+      - serhio-payday-network
+
+  backend:
+    container_name: serhio-payday-backend
+    build: ./backend
+    restart: unless-stopped
+
+    env_file: ./env_params/backend.env
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    ports:
+      - "10002:8000"
+
+    networks:
+      - serhio-payday-network
+
+  payday-generator:
+    container_name: serhio-payday-generator
+    build: ./payday-generator
+    restart: unless-stopped
+
+    env_file: ./env_params/payday-generator.env
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      centrifugo:
+        condition: service_started
+
+    networks:
+      - serhio-payday-network
+
+  frontend:
+    container_name: serhio-payday-frontend
+    build: ./frontend
+    restart: unless-stopped
+
+    env_file: ./env_params/frontend.env
+
+    depends_on:
+      - backend
+
+    ports:
+      - "10003:3000"
+
+    networks:
+      - serhio-payday-network
+
+  vk-bot:
+    container_name: serhio-payday-vk-bot
+    build: ./vk-bot
+    restart: unless-stopped
+
+    env_file: ./env_params/vk-bot.env
+
+    depends_on:
+      - backend
+
+    volumes:
+      - vk_bot_data:/app/data
+
+    networks:
+      - serhio-payday-network
+
+volumes:
+  postgres_data:
+    name: serhio-payday-postgres-data
+  vk_bot_data:
+    name: serhio-payday-vk-bot-data
+
+networks:
+  serhio-payday-network:
+    name: serhio-payday-network
+    driver: bridge
