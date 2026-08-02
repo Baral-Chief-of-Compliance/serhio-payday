@@ -74,6 +74,37 @@ frontend (Nuxt) и vk-bot их показывают.
 (`centrifugo/config.dev.json`); если конфиг не читает env — можно оставить
 пустым, как сейчас.
 
+
+#### как выглядит config.prod.json
+```json
+{
+  "log_level": "info",
+  "client": {
+    "token": {
+      "hmac_secret_key": "hmac_secret_key"
+    },
+    "allowed_origins": [
+      "https://your-domain.com"
+    ]
+  },
+  "http_api": {
+    "key": "KEY_NAME"
+  },
+  "channel": {
+    "namespaces": [
+      {
+        "name": "serhio_payday",
+        "allow_subscribe_for_anonymous": true,
+        "allow_subscribe_for_client": true
+      }
+    ]
+  },
+  "admin": {
+    "enabled": false
+  }
+}
+```
+
 ## ⚠️ На заметку
 
 - `centrifugo/config.prod.json` тоже в `.gitignore` (содержит боевые секреты
@@ -86,3 +117,10 @@ frontend (Nuxt) и vk-bot их показывают.
 - `NUXT_PUBLIC_CENTRIFUGO_TOKEN` во frontend.env — это JWT, подписанный
   `hmac_secret_key` из `centrifugo/config.prod.json`; при смене секрета токен
   нужно перевыпустить.
+
+
+# Запуск
+
+```bash
+docker compose up --build -d
+```
