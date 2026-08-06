@@ -10,10 +10,14 @@ async def start_handler(message: Message) -> None:
     await message.answer(
         "Рассылка баланса включена для этой беседы — обновления будут приходить раз в час. "
         "Чтобы отключить — /stop"
+        "❗❗ Напоминаем, что наблюдать можно на https://serhio.payday.polartitan.ru/"
     )
 
 
 @bot.on.message(text=["/stop", "stop"])
 async def stop_handler(message: Message) -> None:
     await storage.set_subscribed(message.peer_id, False)
-    await message.answer("Рассылка отключена. Включить снова — /start")
+    await message.answer(
+        "Рассылка отключена. Включить снова — /start"
+        "❗❗ Напоминаем, что наблюдать можно на https://serhio.payday.polartitan.ru/"
+    )

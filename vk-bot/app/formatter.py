@@ -18,4 +18,5 @@ def format_summary_message(balance: dict, ticks: list[dict]) -> str:
     for i, tick in enumerate(ticks, start=1):
         sign = "+" if tick["kind"] == "income" else "-"
         lines.append(f"{i}. {sign}{format_amount(tick['amount'])} — {tick['label']}")
-    return "\n".join(lines)
+
+    return "\n".join(lines).join("\n❗❗ Напоминаем, что наблюдать можно на https://serhio.payday.polartitan.ru/")
